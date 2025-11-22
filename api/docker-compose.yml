@@ -12,13 +12,15 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       - db
     environment:
       POSTGRES_CONN: "host=db user=timerwallet password=timerwallet dbname=timerwallet sslmode=disable"
     ports:
       - "8080:8080"
-    command: ["go", "run", "./cmd/main.go"]
+    command: ["/app/main"]
 volumes:
   db_data:
