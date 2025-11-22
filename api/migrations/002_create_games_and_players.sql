@@ -1,0 +1,19 @@
+-- +migrate Up
+CREATE TABLE IF NOT EXISTS games (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    owner_id BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE IF NOT EXISTS players (
+    id SERIAL PRIMARY KEY,
+    game_id BIGINT NOT NULL REFERENCES games(id),
+    user_id BIGINT NOT NULL,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- +migrate Down
+DROP TABLE IF EXISTS players;
+DROP TABLE IF EXISTS games;

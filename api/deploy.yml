@@ -1,0 +1,57 @@
+- name: Deploy TimerWallet API
+  hosts: all
+  vars:
+    db_host: db
+    db_user: timerwallet
+    db_password: timerwallet
+    db_name: timerwallet
+    postgres_conn: "host={{ db_host }} user={{ db_user }} password={{ db_password }} dbname={{ db_name }} sslmode=disable"
+  tasks:
+    - name: Start Postgres in Docker
+      community.docker.docker_container:
+        name: db
+        image: postgres:15
+        env:
+          POSTGRES_USER: "{{ db_user }}"
+          POSTGRES_PASSWORD: "{{ db_password }}"
+          POSTGRES_DB: "{{ db_name }}"
+        ports:
+          - "5432:5432"
+        volumes:
+          - db_data:/var/lib/postgresql/data
+        state: started
+
+    - name: Wait for Postgres to be ready
+      community.docker.docker_container_exec:
+        container: db
+        command: "pg_isready -U {{ db_user }} -d {{ db_name }}"
+      register: pg_ready
+      until: pg_ready.rc == 0
+      retries: 10
+      delay: 3
+
+    - name: Run database migrations
+      community.docker.docker_container:
+        name: migrate
+        image: migrate/migrate
+        command: >
+          -path=/migrations -database "postgres://{{ db_user }}:{{ db_password }}@db:5432/{{ db_name }}?sslmode=disable" up
+        volumes:
+          - ./migrations:/migrations
+        links:
+          - db
+        state: started
+        autoremove: yes
+
+    - name: Start application in Docker
+      community.docker.docker_container:
+        name: app
+        build: .
+        env:
+          POSTGRES_CONN: "host=db user={{ db_user }} password={{ db_password }} dbname={{ db_name }} sslmode=disable"
+        ports:
+          - "8080:8080"
+        command: ["go", "run", "./cmd/main.go"]
+        links:
+          - db
+        state: started

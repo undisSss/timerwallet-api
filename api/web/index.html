@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimerWallet Mini App</title>
+  <style>
+    body {
+      background: #8000ff;
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 400px;
+      margin: 40px auto;
+      background: #6c2eb6;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(128,0,255,0.2);
+      padding: 32px 24px;
+    }
+    h1 {
+      color: #fff;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .button {
+      background: #a259ff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 8px 0;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .button:hover {
+      background: #8000ff;
+    }
+    .game-list {
+      margin-top: 24px;
+    }
+    .game-item {
+      background: #a259ff;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+    label, input {
+      display: block;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    input {
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>TimerWallet Game</h1>
+    <form id="createGameForm">
+      <label for="gameName">Название игры</label>
+      <input type="text" id="gameName" name="gameName" required>
+      <button class="button" type="submit">Создать игру</button>
+    </form>
+    <div class="game-list" id="gameList"></div>
+  </div>
+  <script>
+    async function fetchGames() {
+      const res = await fetch('/games?user_id=1');
+      const games = await res.json();
+      const list = document.getElementById('gameList');
+      list.innerHTML = '';
+      games.forEach(game => {
+        const item = document.createElement('div');
+        item.className = 'game-item';
+        item.textContent = `${game.name} (${game.is_active ? 'Текущая' : 'Архивная'})`;
+        list.appendChild(item);
+      });
+    }
+    document.getElementById('createGameForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('gameName').value;
+      await fetch('/games', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ owner_id: 1, name })
+      });
+      document.getElementById('gameName').value = '';
+      fetchGames();
+    });
+    fetchGames();
+  </script>
+</body>
+</html>

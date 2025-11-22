@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: timerwallet
+      POSTGRES_PASSWORD: timerwallet
+      POSTGRES_DB: timerwallet
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      POSTGRES_CONN: "host=db user=timerwallet password=timerwallet dbname=timerwallet sslmode=disable"
+    ports:
+      - "8080:8080"
+    command: ["go", "run", "./cmd/main.go"]
+volumes:
+  db_data:
