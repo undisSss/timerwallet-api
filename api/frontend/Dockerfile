@@ -2,7 +2,12 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci --silent
+# Use npm ci when lockfile present, otherwise fall back to npm install
+RUN if [ -f package-lock.json ]; then \
+			npm ci --silent; \
+		else \
+			npm install --silent; \
+		fi
 COPY . ./
 RUN npm run build
 
