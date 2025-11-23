@@ -2,6 +2,7 @@
   "name": "timerwallet-frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -16,8 +17,9 @@
   "devDependencies": {
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
-    "@types/react-router-dom": "5.3.3",
-    "typescript": "5.5.6",
-    "vite": "5.1.0"
+    "@vitejs/plugin-react": "^5.0.0",
+    "serve": "^14.2.5",
+    "typescript": "^5.5.0",
+    "vite": "^5.4.21"
   }
 }
