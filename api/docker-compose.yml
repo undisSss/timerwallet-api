@@ -11,6 +11,16 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_BASE=/api
   app:
     build:
       context: .
