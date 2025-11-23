@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"os"
 
+	"timerwallet-api/internal/db"
+	"timerwallet-api/internal/delivery"
+
 	"github.com/gorilla/mux"
-    "timerwallet-api/internal/db"
-    "timerwallet-api/internal/delivery"
 )
 
 func main() {
@@ -16,10 +17,18 @@ func main() {
 
 	r := mux.NewRouter()
 
-	gameHandler := &delivery.GameHandler{} // TODO: внедрить usecase
+	gameHandler := &delivery.GameHandler{}
 
-	r.HandleFunc("/auth/telegram", TelegramAuthHandler).Methods("POST")
-	r.HandleFunc("/data", DataExchangeHandler).Methods("POST")
+	// auth handlers moved to internal/delivery
+	r.HandleFunc("/auth/telegram", delivery.TelegramAuthHandler).Methods("POST")
+	r.HandleFunc("/auth/refresh", delivery.RefreshHandler).Methods("POST")
+	r.HandleFunc("/auth/logout", delivery.LogoutHandler).Methods("POST")
+	r.HandleFunc("/me", delivery.MeHandler).Methods("GET")
+
+	r.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Data Exchange Success"))
+	}).Methods("POST")
 
 	r.HandleFunc("/games", gameHandler.CreateGame).Methods("POST")
 	r.HandleFunc("/games", gameHandler.ListGames).Methods("GET")
@@ -31,16 +40,4 @@ func main() {
 	if err := http.ListenAndServe(":8080", r); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
-}
-
-func TelegramAuthHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement Telegram authentication logic
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Telegram Auth Success"))
-}
-
-func DataExchangeHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement data exchange logic
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Data Exchange Success"))
 }
