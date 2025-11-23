@@ -46,5 +46,17 @@
 - Для стилей можно использовать CSS-модули или styled-components.
 - Для запросов — fetch или axios.
 
+**Docker / env**: как подставлять секреты
+
+- В `api/` есть `docker-compose.yml` — он поддерживает подстановку переменных окружения из файла `api/.env`.
+- Скопируйте `api/.env.example` в `api/.env` и заполните `BOT_TOKEN`, `JWT_SECRET` и при необходимости `POSTGRES_CONN`.
+- Пример (в папке `api`):
+```powershell
+copy .\.env.example .\.env
+# отредактируйте .env и затем запустите
+docker compose up --build
+```
+- В `docker-compose.yml` переменные используются как `${VAR}` с разумными значениями по умолчанию. Для локальной разработки `COOKIE_SECURE=0`, на проде установите `COOKIE_SECURE=1`.
+
 ## Вопросы и поддержка
 - Все вопросы по фронтенду — в README или через issues репозитория.

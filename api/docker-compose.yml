@@ -19,16 +19,21 @@ services:
       - app
     ports:
       - "80:80"
+    env_file: .env
     environment:
-      - VITE_API_BASE=/api
+      - VITE_API_BASE=${VITE_API_BASE:-/api}
   app:
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
       - db
+    env_file: .env
     environment:
-      POSTGRES_CONN: "host=db user=timerwallet password=timerwallet dbname=timerwallet sslmode=disable"
+      POSTGRES_CONN: ${POSTGRES_CONN:-"host=db user=timerwallet password=timerwallet dbname=timerwallet sslmode=disable"}
+      BOT_TOKEN: ${BOT_TOKEN}
+      JWT_SECRET: ${JWT_SECRET}
+      COOKIE_SECURE: ${COOKIE_SECURE:-0}
     ports:
       - "8080:8080"
     command: ["/app/main"]
